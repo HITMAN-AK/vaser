@@ -4,6 +4,7 @@ const cors = require("cors");
 const bodyparser=require("body-parser");
 const mongoose = require("mongoose");
 const password = encodeURIComponent("Ashwin@01012004");
+const {} = require("./user")
 app.use(bodyparser.json());
 app.use(
     cors({
