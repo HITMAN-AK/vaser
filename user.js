@@ -6,7 +6,7 @@ const emplyee = new Schema({
   },
   role: {
     type: [String],
-    enum: ['labour', 'engineer', 'mason', 'electrican','plumber',],
+    enum: ['supervisor','labour', 'engineer', 'mason', 'electrican','plumber',],
     required: true,
   },
   salary: {
@@ -26,10 +26,6 @@ const emplyee = new Schema({
       type: String,
       unique: true,
     },
-  skills: {
-    type: [String],
-    default: [],
-  },
   address: {
     street: String,
     city: String,
@@ -50,9 +46,9 @@ const site = new Schema({
     owner:String,
     locaton:String,
     worker:{type:[Types.ObjectId],validate:{
-        validator:(v)=> Types.ObjectId.isValid(v)
-    }},
-    inventery:{type:[Types.ObjectId]},
+        validator:async (v)=> Types.ObjectId.isValid(v) && await emp.findById(v) 
+    },message: 'Invalid id',},
+    inventory:{type:[Types.ObjectId]},
 })
 
 const userschema=new Schema({
@@ -64,7 +60,11 @@ const userschema=new Schema({
     emplee:[emplyee],
 
 })
-module.exports.usr=model("user",userschema);
-module.exports.emp = model("emp",emplyee);
-module.exports.stock=model("stock",stock);
-module.exports.site=model("site",site);
+const usr = model("user",userschema);
+const emp = model("emp",emplyee);
+const stk = model("stock",stock);
+const ste = model("site",site);
+module.exports.usr= usr
+module.exports.emp = emp
+module.exports.stock = stk
+module.exports.site= ste
