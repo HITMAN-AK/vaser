@@ -1,5 +1,4 @@
-const mongoose = require("mongoose");
-const {ObjectId} = require("mongodb")
+const mongoose,{Types} = require("mongoose");
 const emplyee = new mongoose.Schema({
   name: {
     type: String,
@@ -8,27 +7,25 @@ const emplyee = new mongoose.Schema({
   role: {
     type: [String],
     enum: ['laborer', 'engineer', 'mason', 'electrican','plumber',],
-    // required: true,
+    required: true,
   },
   salary: {
     type: Number,
-    // required: true,
+    required: true,
   },
   dateOfJoining: {
     type: Date,
-    // required: true,
+    required: true,
     default:Date.now(),
   },
-  contactInfo: {
     phone: {
       type: String,
-      // required: true,
+      required: true,
     },
     email: {
       type: String,
       unique: true,
     },
-  },
   skills: {
     type: [String],
     default: [],
@@ -52,7 +49,10 @@ const site = new mongoose.Schema({
     name:String,
     owner:String,
     locaton:String,
-    Worker:{type:[ObjectId]},
+    worker:{type:[Types.ObjectId],validate:{
+        validator:(v)=> Types.ObjectId.isValid(v)
+    }},
+    inventery:{type:[Types.ObjectId]},
 })
 
 const userschema=new mongoose.Schema({
@@ -64,4 +64,7 @@ const userschema=new mongoose.Schema({
     emplee:[emplyee],
 
 })
-module.exports=mongoose.model("user",userschema);
+module.exports.usr=mongoose.model("user",userschema);
+module.exports.emp = mongoose.module("emp",emplyee);
+module.exports.stock=mongoose.model("stock",stock);
+module.exports.usr=mongoose.model("site",site);
