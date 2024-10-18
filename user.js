@@ -6,7 +6,7 @@ const emplyee = new Schema({
   },
   role: {
     type: [String],
-    enum: ['laborer', 'engineer', 'mason', 'electrican','plumber',],
+    enum: ['labour', 'engineer', 'mason', 'electrican','plumber',],
     required: true,
   },
   salary: {
