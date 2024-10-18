@@ -57,7 +57,9 @@ const userschema=new Schema({
     pass:String,
     scode:Number,
     noPac:{type:Number,enum:[0,1,2],default:0},
-    emplee:[emplyee],
+    emplee:{type:[Types.ObjectId],validate:{
+        validator:async (v)=> Types.ObjectId.isValid(v) && await emp.findById(v) 
+    },message: 'Invalid id',},
 
 })
 const usr = model("user",userschema);
