@@ -1,12 +1,10 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const User = require("./user");
 const bodyparser = require("body-parser");
 const mongoose = require("mongoose");
 const password = encodeURIComponent("Ashwin01012004");
-const {} = require("./user");
-const user = require("./user");
+const { usr, emp, site, stock } = require("./user");
 app.use(bodyparser.json());
 app.use(
   cors({
@@ -29,15 +27,25 @@ async function main() {
     });
 }
 
-const auth = (rq,rs,next)=>{
+const auth = (rq, rs, next) => {
   console.log(`Server running on port`);
   console.log(`Server running on port`);
-    next()
+  next();
+};
+app.post("/log", async (req, res) => {
+  const pk = req.body.pk;
+  // console.log(pk);
+  // console.log(req.headers.key);
+  // const id = await user.findById("67120c8f72983290af582059");
+  // console.log(id);
+});
+async function ce() {
+  await emp.create({
+    name:"NITHIN",
+    phone:108,
+    
+  })
 }
-app.post("",auth,async(req,res)=>{
-
-})
-
 app.listen(2000, "0.0.0.0", () => {
   console.log(`Server running on port`);
 });

@@ -1,5 +1,5 @@
-const mongoose,{Types} = require("mongoose");
-const emplyee = new mongoose.Schema({
+const {Types,model,Schema} = require("mongoose");
+const emplyee = new Schema({
   name: {
     type: String,
     required: true,
@@ -38,14 +38,14 @@ const emplyee = new mongoose.Schema({
   },
 });
 
-const stock = new mongoose.Schema({
+const stock = new Schema({
     name:String,
     quant:Number,
     unit:String,
     
 })
 
-const site = new mongoose.Schema({
+const site = new Schema({
     name:String,
     owner:String,
     locaton:String,
@@ -55,7 +55,7 @@ const site = new mongoose.Schema({
     inventery:{type:[Types.ObjectId]},
 })
 
-const userschema=new mongoose.Schema({
+const userschema=new Schema({
     name : String,
     uname:{type:String,unique:true},
     pass:String,
@@ -64,7 +64,7 @@ const userschema=new mongoose.Schema({
     emplee:[emplyee],
 
 })
-module.exports.usr=mongoose.model("user",userschema);
-module.exports.emp = mongoose.module("emp",emplyee);
-module.exports.stock=mongoose.model("stock",stock);
-module.exports.usr=mongoose.model("site",site);
+module.exports.usr=model("user",userschema);
+module.exports.emp = model("emp",emplyee);
+module.exports.stock=model("stock",stock);
+module.exports.site=model("site",site);
