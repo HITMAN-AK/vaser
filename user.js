@@ -8,21 +8,21 @@ const emplyee = new mongoose.Schema({
   role: {
     type: [String],
     enum: ['laborer', 'engineer', 'mason', 'electrican','plumber',],
-    required: true,
+    // required: true,
   },
   salary: {
     type: Number,
-    required: true,
+    // required: true,
   },
   dateOfJoining: {
     type: Date,
-    required: true,
+    // required: true,
     default:Date.now(),
   },
   contactInfo: {
     phone: {
       type: String,
-      required: true,
+      // required: true,
     },
     email: {
       type: String,
@@ -41,7 +41,7 @@ const emplyee = new mongoose.Schema({
   },
 });
 
-const stack = new mongoose.Schema({
+const stock = new mongoose.Schema({
     name:String,
     quant:Number,
     unit:String,
@@ -60,10 +60,8 @@ const userschema=new mongoose.Schema({
     uname:{type:String,unique:true},
     pass:String,
     scode:Number,
-    noPac:{type:[String],enum:["pac0","pac1","pac2","pac3","pac4"],default:"pac0"},
-    emplee:emplyee,
+    noPac:{type:Number,enum:[0,1,2],default:0},
+    emplee:[emplyee],
 
 })
-
-
 module.exports=mongoose.model("user",userschema);
