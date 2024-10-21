@@ -26,6 +26,15 @@ async function main() {
       console.log("db connect error", err);
     });
 }
+app.post("/pi", async (req, res) => {
+  if (req.body.role == "0") {
+    const id = await usr.findOne({ _id: req.body.pk });
+    res.json({ name: id.name.toUpperCase(), role: "OWNER" });
+  } else {
+    const id = await usr.findOne({ "emplee._id": req.body.pk });
+    res.json({ name: id.emplee[0].name.toUpperCase(), role: id.emplee[0].role.toUpperCase()});
+  }
+});
 app.post("/pr", async (req, res) => {
   if (req.body.pk && req.body.role) {
     if (req.body.role == "0") {
