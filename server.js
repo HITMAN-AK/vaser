@@ -26,11 +26,54 @@ async function main() {
       console.log("db connect error", err);
     });
 }
-app.post("/ae",async(req,res)=>{
+app.get("/e", async (req, res) => {
+  if (req.headers.owner == 0) {
+    const ed = await usr.findOne({ _id: req.headers.auth });
+    console.log(ed.emplee);
+    res.json({ ed: ed.emplee });
+  } else {
+    const ed = await usr.findOne({ "emplee._id": req.headers.auth });
+    res.json({ ed: ed.emplee });
+    console.log(ed.emplee);
+  }
+});
+app.post("/ae", async (req, res) => {
   const pk = req.headers.auth;
   const owner = req.headers.owner;
-  
-})
+  if (owner == "0") {
+    try {
+      const id = await usr.findById(pk);
+      if (id != null) {
+        await usr
+          .updateOne({ _id: id }, { $push: { emplee: req.body } })
+          .then(() => {
+            res.json({ status: true });
+          });
+      } else {
+        res.json({ status: false });
+      }
+    } catch (err) {
+      res.json({ status: false });
+    }
+  } else if (owner == "1") {
+    try {
+      const id = await usr.findOne({ "emplee._id": pk });
+      if (id != null) {
+        await usr
+          .updateOne({ _id: id }, { $push: { emplee: req.body } })
+          .then(() => {
+            res.json({ status: true });
+          });
+      } else {
+        res.json({ status: false });
+      }
+    } catch (err) {
+      res.json({ status: false });
+    }
+  } else {
+    res.json({ status: false });
+  }
+});
 app.post("/log", async (req, res) => {
   const pk = req.body.pk;
   const role = req.body.role;
