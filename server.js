@@ -4,7 +4,7 @@ const cors = require("cors");
 const bodyparser = require("body-parser");
 const mongoose = require("mongoose");
 const password = encodeURIComponent("Ashwin01012004");
-const { usr, emp, site, stock } = require("./user");
+const { usr } = require("./user");
 app.use(bodyparser.json());
 app.use(
   cors({
@@ -26,26 +26,69 @@ async function main() {
       console.log("db connect error", err);
     });
 }
-
-const auth = (rq, rs, next) => {
-  console.log(`Server running on port`);
-  console.log(`Server running on port`);
-  next();
-};
+app.post("/ae",async(req,res)=>{
+  const pk = req.headers.auth;
+  const owner = req.headers.owner;
+  
+})
 app.post("/log", async (req, res) => {
   const pk = req.body.pk;
-  // console.log(pk);
-  // console.log(req.headers.key);
-  // const id = await user.findById("67120c8f72983290af582059");
-  // console.log(id);
+  const role = req.body.role;
+  if (role == 0) {
+    try {
+      const id = await usr.findById(pk);
+      if (id == null) {
+        res.json({ status: false });
+        console.log("invalid-user");
+      } else {
+        res.json({ status: true });
+        console.log("valid-user");
+      }
+    } catch (err) {
+      res.json({ status: false });
+      console.log("INVALID-USER");
+    }
+  } else {
+    try {
+      const id = usr.findOne({ "emplee._id": pk });
+      if (id == null) {
+        res.json({ status: false });
+        console.log("invalid-user");
+      } else {
+        if (id.role == "supervisor") {
+          res.json({ status: true, acc: true });
+          console.log("valid-user");
+        } else {
+          res.json({ status: true, acc: false });
+          console.log("valid-user");
+        }
+      }
+    } catch (err) {
+      res.json({ status: false });
+      console.log("INVALID-USER");
+    }
+  }
 });
 async function ce() {
-  await emp.create({
-    name:"NITHIN",
-    phone:108,
-    
-  })
+  await usr
+    .updateOne(
+      { _id: "671254444bcb1d84f7e30aa2" },
+      {
+        $push: {
+          emplee: {
+            name: "Nithin",
+            role: "supervisor",
+            salary: 30000,
+            phone: 108,
+          },
+        },
+      }
+    )
+    .then(() => {
+      console.log("employee crearted");
+    });
 }
+// ce();
 app.listen(2000, "0.0.0.0", () => {
   console.log(`Server running on port`);
 });

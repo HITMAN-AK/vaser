@@ -1,12 +1,19 @@
-const {Types,model,Schema} = require("mongoose");
+const { Types, model, Schema } = require("mongoose");
 const emplyee = new Schema({
   name: {
     type: String,
     required: true,
   },
   role: {
-    type: [String],
-    enum: ['supervisor','labour', 'engineer', 'mason', 'electrican','plumber',],
+    type: String,
+    enum: [
+      "supervisor",
+      "labour",
+      "engineer",
+      "mason",
+      "electrican",
+      "plumber",
+    ],
     required: true,
   },
   salary: {
@@ -16,16 +23,16 @@ const emplyee = new Schema({
   dateOfJoining: {
     type: Date,
     required: true,
-    default:Date.now(),
+    default: Date.now(),
   },
-    phone: {
-      type: String,
-      required: true,
-    },
-    email: {
-      type: String,
-      unique: true,
-    },
+  phone: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    unique: true,
+  },
   address: {
     street: String,
     city: String,
@@ -35,38 +42,28 @@ const emplyee = new Schema({
 });
 
 const stock = new Schema({
-    name:String,
-    quant:Number,
-    unit:String,
-    
-})
+  name: String,
+  quant: Number,
+  unit: String,
+});
 
 const site = new Schema({
-    name:String,
-    owner:String,
-    locaton:String,
-    worker:{type:[Types.ObjectId],validate:{
-        validator:async (v)=> Types.ObjectId.isValid(v) && await emp.findById(v) 
-    },message: 'Invalid id',},
-    inventory:{type:[Types.ObjectId]},
-})
+  name: String,
+  owner: String,
+  locaton: String,
+  worker:[String],
+  inventory: [String],
+  stock: [stock],
+});
 
-const userschema=new Schema({
-    name : String,
-    uname:{type:String,unique:true},
-    pass:String,
-    scode:Number,
-    noPac:{type:Number,enum:[0,1,2],default:0},
-    emplee:{type:[Types.ObjectId],validate:{
-        validator:async (v)=> Types.ObjectId.isValid(v) && await emp.findById(v) 
-    },message: 'Invalid id',},
-
-})
-const usr = model("user",userschema);
-const emp = model("emp",emplyee);
-const stk = model("stock",stock);
-const ste = model("site",site);
-module.exports.usr= usr
-module.exports.emp = emp
-module.exports.stock = stk
-module.exports.site= ste
+const userschema = new Schema({
+  name: String,
+  uname: { type: String, unique: true },
+  pass: String,
+  scode: Number,
+  noPac: { type: Number, enum: [0, 1, 2], default: 0 },
+  emplee: [emplyee],
+  site: [site],
+});
+const usr = model("user", userschema);
+module.exports.usr = usr;
