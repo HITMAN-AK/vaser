@@ -1,4 +1,13 @@
 const { Types, model, Schema } = require("mongoose");
+const attLog = new Schema({
+    id:{type:Types.ObjectId,ref:"user.emplee"},
+    status:Boolean,
+    present:[Date],
+    absent:[Date],
+    late:[Date],
+
+
+})
 const emplyee = new Schema({
   name: {
     type: String,
@@ -23,7 +32,7 @@ const emplyee = new Schema({
   dateOfJoining: {
     type: Date,
     required: true,
-    default: Date.now(),
+    default: Date.now,
   },
   phone: {
     type: String,
@@ -32,12 +41,6 @@ const emplyee = new Schema({
   email: {
     type: String,
     unique: true,
-  },
-  address: {
-    street: String,
-    city: String,
-    state: String,
-    zip: String,
   },
 });
 
@@ -66,4 +69,6 @@ const userschema = new Schema({
   site: [site],
 });
 const usr = model("user", userschema);
+const att = model("Att",attLog);
 module.exports.usr = usr;
+module.exports.att = att;
