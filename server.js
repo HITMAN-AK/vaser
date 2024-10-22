@@ -24,8 +24,13 @@ app.post("/at", async (req, res) => {
   const id = await usr.findOne(
     req.headers.role=="0" ? { _id: req.headers.pk } : { "emplee._id": req.headers.pk }
   );
-  console.log(id);
   console.log(req.body);
+    req.body.map(async (v)=>{
+        await att.updateOne({id:v},{$push:{absent:Date.now}})
+    })
+    const emp = id.emplee.map(v=>{ if(!req.body.includes(v._id.toString())) return v._id })
+    console.log(emp)
+    res.end('')
 });
 
 app.post("/pi", async (req, res) => {
