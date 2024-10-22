@@ -30,6 +30,9 @@ app.post("/at", async (req, res) => {
     })
     const emp = id.emplee.map(v=>{ if(!req.body.includes(v._id.toString())) return v._id })
     console.log(emp)
+    emp.map(async v=>{
+        v && await att.updateOne({id:v},{$push : {present:Date.now}})
+    })
     res.end('')
 });
 
