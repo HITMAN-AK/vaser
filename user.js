@@ -2,9 +2,9 @@ const { Types, model, Schema } = require("mongoose");
 const attLog = new Schema({
     id:{type:Types.ObjectId,ref:"user.emplee",required:true},
     status:Boolean,
-    present:[Date],
-    absent:[Date],
-    late:[Date],
+    present:[],
+    absent:[],
+    late:[],
 })
 const emplyee = new Schema({
   name: {
