@@ -169,7 +169,7 @@ async function ce() {
       console.log("employee crearted");
     });
 }
-// ce();
+// cdsfvre sdvdv sefrev ce();
 app.listen(2000, "0.0.0.0", () => {
   console.log(`Server running on port`);
 });
