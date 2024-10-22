@@ -15,16 +15,10 @@ main().catch((err) => {
   console.log(err);
 });
 async function main() {
-  await mongoose
-    .connect(
-      `mongodb+srv://legendaryairforce:${password}@velxapp.t74pz.mongodb.net/`
-    )
-    .then(() => {
-      console.log("db connect success");
-    })
-    .catch((err) => {
-      console.log("db connect error", err);
-    });
+  await mongoose.connect(`mongodb+srv://legendaryairforce:${password}@velxapp.t74pz.mongodb.net/`).then(() => {console.log("db connect success");}).catch((err) => {console.log("db connect error", err);});
+}
+function fndId(body,key){
+    return body.findIndex((v)=>v._id.toString()==key) 
 }
 app.post("/at", async (req, res) => {
   const id = await usr.findOne(
@@ -33,130 +27,65 @@ app.post("/at", async (req, res) => {
   console.log(id);
   console.log(req.body);
 });
+
 app.post("/pi", async (req, res) => {
-  if (req.body.role != null && req.body.pk != null) {
-    if (req.body.role == "0") {
-      const id = await usr.findOne({ _id: req.body.pk });
-      res.json({ name: id.name.toUpperCase(), role: "OWNER" });
-    } else {
-      const id = await usr.findOne({ "emplee._id": req.body.pk });
-      res.json({
-        name: id.emplee[0].name.toUpperCase(),
-        role: id.emplee[0].role.toUpperCase(),
-      });
+    if (req.body.role != null && req.body.pk != null) {
+        const id = await usr.findOne(req.body.role == 0 ? {_id:req.body.pk}:{ "emplee._id": req.body.pk });
+        res.json({
+            name:  req.body.role == 0 ? id.name.toUpperCase() : id.emplee[fndId(id.emplee,req.body.pk)].name.toUpperCase(),
+            role: req.body.role == 0 ? "OWNER": id.emplee[fndId(id.emplee,req.body.pk)].role.toUpperCase(),
+        });
+
     }
-  }
 });
+
 app.post("/pr", async (req, res) => {
   if (req.body.pk && req.body.role) {
-    if (req.body.role == "0") {
-      try {
-        const e = await usr.exists({ _id: req.body.pk });
-        if (e) {
-          res.json({ per: true });
-        } else {
-          res.json({ per: false });
-        }
-      } catch {
-        res.json({ per: false });
-      }
-    } else {
-      try {
-        const e = await usr.exists({ "emplee._id": req.body.pk });
-        if (e) {
-          res.json({ per: true });
-        } else {
-          res.json({ per: false });
-        }
-      } catch {
-        res.json({ per: false });
-      }
-    }
+        usr.exists(req.body.role == 0 ?  {_id:req.body.pk}:{'emplee._id' : req.body.pk}).then(e=>{
+            res.json({per:e})
+        });
   } else {
     res.json({ per: false });
   }
 });
+
+
 app.get("/e", async (req, res) => {
-  if (req.headers.owner == 0) {
-    const ed = await usr.findOne({ _id: req.headers.auth });
+    const ed = await usr.findOne(req.headers.owner == 0?{ _id: req.headers.auth }:{"emplee._id":req.headers.auth});
     res.json({ ed: ed.emplee });
-  } else {
-    const ed = await usr.findOne({ "emplee._id": req.headers.auth });
-    res.json({ ed: ed.emplee });
-  }
 });
+
 app.post("/ae", async (req, res) => {
-  const pk = req.headers.auth;
-  const owner = req.headers.owner;
-  if (owner == "0") {
-    try {
-      const id = await usr.findById(pk);
-      if (id != null) {
-        await usr.updateOne({ _id: id }, { $push: { emplee: req.body } });
-        const nid = await usr.findById(pk);
-        const n = nid.emplee[id.emplee.length]._id.toString();
-        await att.create({
-          id: n,
-        });
-        res.json({ status: true });
-      } else {
-        res.json({ status: false });
-      }
-    } catch (err) {
-      res.json({ status: false });
+    const pk = req.headers.auth;
+    const owner = req.headers.owner;
+    if(!owner){
+        res.json({status:false})
+        return
     }
-  } else if (owner == "1") {
-    try {
-      const id = await usr.findOne({ "emplee._id": pk });
-      if (id != null) {
-        await usr.updateOne({ _id: id }, { $push: { emplee: req.body } });
-        const nid = await usr.findOne({ "emplee._id": pk });
-        const n = nid.emplee[id.emplee.length]._id.toString();
-        await att.create({
-          id: n,
-        });
-        res.json({ status: true });
-      } else {
-        res.json({ status: false });
-      }
-    } catch (err) {
-      res.json({ status: false });
-    }
-  } else {
-    res.json({ status: false });
-  }
+    const clust = await usr.findOne(owner == 0 ? {_id:pk}:{"emplee._id":pk})
+    clust && usr.updateOne({_id:clust._id},{$push:{emplee:req.body}}).then(async ()=>{
+        const nClust = await usr.findOne(owner == 0 ? {_id:pk}:{"emplee._id":pk})
+        await att.create({id:nClust.emplee[clust.emplee.length]._id.toString()})
+        res.json({status:true})
+    })
+    clust || res.json({status:false})
 });
+
 app.post("/log", async (req, res) => {
   const pk = req.body.pk;
   const role = req.body.role;
-  if (role == "0") {
-    try {
-      const id = await usr.findOne({ _id: pk });
-      if (id == null) {
-        res.json({ status: false });
-      } else {
-        res.json({ status: true, acc: true });
-      }
-    } catch (err) {
-      res.json({ status: false });
-    }
-  } else {
-    try {
-      const id = usr.findOne({ "emplee._id": pk });
-      if (id == null) {
-        res.json({ status: false });
-      } else {
-        if (id.role == "supervisor") {
-          res.json({ status: true, acc: true });
-        } else {
-          res.json({ status: true, acc: false });
+    const id = await usr.findOne(role == 0 ? {_id:pk}:{"emplee._id":pk})
+    if(id){
+        if(role == 0){
+            res.json({status:true,acc:true})
+            return
         }
-      }
-    } catch (err) {
-      res.json({ status: false });
+        res.json({status:true,acc:id.emplee[fndId(id.emplee,pk)].role == "supervisor"})
+    }else{
+        res.json({status:false,acc:true})
     }
-  }
 });
+
 async function ce() {
   await usr
     .updateOne(
