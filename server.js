@@ -33,16 +33,18 @@ async function main() {
 //   }
 // })
 app.post("/pi", async (req, res) => {
-  if (req.body.role == "0") {
-    const id = await usr.findOne({ _id: req.body.pk });
-    res.json({ name: id.name.toUpperCase(), role: "OWNER" });
-  } else {
-    const id = await usr.findOne({ "emplee._id": req.body.pk });
-    console.log(id.emplee);
-    res.json({
-      name: id.emplee[0].name.toUpperCase(),
-      role: id.emplee[0].role.toUpperCase(),
-    });
+  if (req.body.role != null && req.body.pk != null) {
+    if (req.body.role == "0") {
+      const id = await usr.findOne({ _id: req.body.pk });
+      res.json({ name: id.name.toUpperCase(), role: "OWNER" });
+    } else {
+      const id = await usr.findOne({ "emplee._id": req.body.pk });
+      console.log(id.emplee);
+      res.json({
+        name: id.emplee[0].name.toUpperCase(),
+        role: id.emplee[0].role.toUpperCase(),
+      });
+    }
   }
 });
 app.post("/pr", async (req, res) => {
