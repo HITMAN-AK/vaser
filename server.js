@@ -4,7 +4,7 @@ const cors = require("cors");
 const bodyparser = require("body-parser");
 const mongoose = require("mongoose");
 const password = encodeURIComponent("Ashwin01012004");
-const { usr } = require("./user");
+const { usr, att } = require("./user");
 app.use(bodyparser.json());
 app.use(
   cors({
@@ -26,13 +26,23 @@ async function main() {
       console.log("db connect error", err);
     });
 }
+// app.post("/at",async(req,res)=>{
+//   if(req.headers.role=="0"){
+//     const id=await usr.findOne({_id:req.headers.pk});
+
+//   }
+// })
 app.post("/pi", async (req, res) => {
   if (req.body.role == "0") {
     const id = await usr.findOne({ _id: req.body.pk });
     res.json({ name: id.name.toUpperCase(), role: "OWNER" });
   } else {
     const id = await usr.findOne({ "emplee._id": req.body.pk });
-    res.json({ name: id.emplee[0].name.toUpperCase(), role: id.emplee[0].role.toUpperCase()});
+    console.log(id.emplee);
+    res.json({
+      name: id.emplee[0].name.toUpperCase(),
+      role: id.emplee[0].role.toUpperCase(),
+    });
   }
 });
 app.post("/pr", async (req, res) => {
@@ -113,13 +123,13 @@ app.post("/ae", async (req, res) => {
 app.post("/log", async (req, res) => {
   const pk = req.body.pk;
   const role = req.body.role;
-  if (role == 0) {
+  if (role == "0") {
     try {
-      const id = await usr.findById(pk);
+      const id = await usr.findOne({ _id: pk });
       if (id == null) {
         res.json({ status: false });
       } else {
-        res.json({ status: true });
+        res.json({ status: true, acc: true });
       }
     } catch (err) {
       res.json({ status: false });
