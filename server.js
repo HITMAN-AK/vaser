@@ -67,12 +67,10 @@ app.post("/pr", async (req, res) => {
 app.get("/e", async (req, res) => {
   if (req.headers.owner == 0) {
     const ed = await usr.findOne({ _id: req.headers.auth });
-    console.log(ed.emplee);
     res.json({ ed: ed.emplee });
   } else {
     const ed = await usr.findOne({ "emplee._id": req.headers.auth });
     res.json({ ed: ed.emplee });
-    console.log(ed.emplee);
   }
 });
 app.post("/ae", async (req, res) => {
@@ -120,33 +118,26 @@ app.post("/log", async (req, res) => {
       const id = await usr.findById(pk);
       if (id == null) {
         res.json({ status: false });
-        console.log("invalid-user");
       } else {
         res.json({ status: true });
-        console.log("valid-user");
       }
     } catch (err) {
       res.json({ status: false });
-      console.log("INVALID-USER");
     }
   } else {
     try {
       const id = usr.findOne({ "emplee._id": pk });
       if (id == null) {
         res.json({ status: false });
-        console.log("invalid-user");
       } else {
         if (id.role == "supervisor") {
           res.json({ status: true, acc: true });
-          console.log("valid-user");
         } else {
           res.json({ status: true, acc: false });
-          console.log("valid-user");
         }
       }
     } catch (err) {
       res.json({ status: false });
-      console.log("INVALID-USER");
     }
   }
 });
