@@ -5,8 +5,6 @@ const attLog = new Schema({
     present:[Date],
     absent:[Date],
     late:[Date],
-
-
 })
 const emplyee = new Schema({
   name: {

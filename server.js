@@ -26,12 +26,13 @@ async function main() {
       console.log("db connect error", err);
     });
 }
-// app.post("/at",async(req,res)=>{
-//   if(req.headers.role=="0"){
-//     const id=await usr.findOne({_id:req.headers.pk});
-
-//   }
-// })
+app.post("/at", async (req, res) => {
+  const id = await usr.findOne(
+    req.headers.role=="0" ? { _id: req.headers.pk } : { "emplee._id": req.headers.pk }
+  );
+  console.log(id);
+  console.log(req.body);
+});
 app.post("/pi", async (req, res) => {
   if (req.body.role != null && req.body.pk != null) {
     if (req.body.role == "0") {
@@ -39,7 +40,6 @@ app.post("/pi", async (req, res) => {
       res.json({ name: id.name.toUpperCase(), role: "OWNER" });
     } else {
       const id = await usr.findOne({ "emplee._id": req.body.pk });
-      console.log(id.emplee);
       res.json({
         name: id.emplee[0].name.toUpperCase(),
         role: id.emplee[0].role.toUpperCase(),
@@ -92,11 +92,13 @@ app.post("/ae", async (req, res) => {
     try {
       const id = await usr.findById(pk);
       if (id != null) {
-        await usr
-          .updateOne({ _id: id }, { $push: { emplee: req.body } })
-          .then(() => {
-            res.json({ status: true });
-          });
+        await usr.updateOne({ _id: id }, { $push: { emplee: req.body } });
+        const nid = await usr.findById(pk);
+        const n = nid.emplee[id.emplee.length]._id.toString();
+        await att.create({
+          id: n,
+        });
+        res.json({ status: true });
       } else {
         res.json({ status: false });
       }
@@ -107,11 +109,13 @@ app.post("/ae", async (req, res) => {
     try {
       const id = await usr.findOne({ "emplee._id": pk });
       if (id != null) {
-        await usr
-          .updateOne({ _id: id }, { $push: { emplee: req.body } })
-          .then(() => {
-            res.json({ status: true });
-          });
+        await usr.updateOne({ _id: id }, { $push: { emplee: req.body } });
+        const nid = await usr.findOne({ "emplee._id": pk });
+        const n = nid.emplee[id.emplee.length]._id.toString();
+        await att.create({
+          id: n,
+        });
+        res.json({ status: true });
       } else {
         res.json({ status: false });
       }
