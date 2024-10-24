@@ -95,19 +95,17 @@ app.post("/log", async (req, res) => {
 });
 
 app.post("/site",(rq,rs)=>{
-    console.log("dcd");
     (rq.headers.owner == 0 || rq.headers.owner == "supervisor") ?
-    usr.updateOne(rq.headers.owner == 0 ? {_id:rq.headers.pk}:{"emplee._id":rq.headers.pk},{$push:{ site : rq.body }}).then(()=>{
+    usr.updateOne(rq.headers.owner == 0 ? {_id:rq.headers.auth}:{"emplee._id":rq.headers.auth},{$push:{ site : rq.body }}).then((r)=>{
             rs.end('') }):
     rs.end(null)
 })
 
-// app.get("/project",(rq,rs)=>{
-
-//     usr.findOne(rq.headers.owner == 0 ? {_id:rq.headers.pk}:{"emplee._id":rq.headers.pk}).then(r=>{
-//         rs.json(r.site)
-//     })
-// })
+app.get("/site",(rq,rs)=>{
+    usr.findOne(rq.headers.owner == 0 ? {_id:rq.headers.auth}:{"emplee._id":rq.headers.auth}).then(r=>{
+        rs.json(r.site)
+    })
+})
 
 async function ce() {
   await usr
