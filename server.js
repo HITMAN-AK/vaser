@@ -88,13 +88,14 @@ app.post("/log", async (req, res) => {
             res.json({status:true,acc:true})
             return
         }
-        res.json({status:true,acc:id.emplee[fndId(id.emplee,pk)].role == "supervisor"})
+        res.json({status:true,acc:id.emplee[fndId(id.emplee,pk)].role == "supervisor",role:id.emplee[fndId(id.emplee,pk)].role})
     }else{
         res.json({status:false,acc:true})
     }
 });
 
 app.post("/site",(rq,rs)=>{
+    console.log(rq.headers.owner);
     (rq.headers.owner == 0 || rq.headers.owner == "supervisor") ?
     usr.updateOne(rq.headers.owner == 0 ? {_id:rq.headers.auth}:{"emplee._id":rq.headers.auth},{$push:{ site : rq.body }}).then((r)=>{
             rs.end('') }):
