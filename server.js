@@ -5,11 +5,10 @@ const bodyparser = require("body-parser");
 const mongoose = require("mongoose");
 const password = encodeURIComponent("Ashwin01012004");
 const { usr, att } = require("./user");
+const web = require('./web')
 app.use(bodyparser.json());
 app.use(
-  cors({
-    origin: "*",
-  })
+  cors()
 );
 main().catch((err) => {
   console.log(err);
@@ -20,6 +19,7 @@ async function main() {
 function fndId(body,key){
     return body.findIndex((v)=>v._id.toString()==key) 
 }
+app.use('/web',web);
 app.post("/at", async (req, res) => {
   const id = await usr.findOne(
     req.headers.role=="0" ? { _id: req.headers.pk } : { "emplee._id": req.headers.pk }
