@@ -38,14 +38,6 @@ const emplyee = model('emplyee' ,new Schema({
     noPac: { type: Number, enum: [0, 1, 2], default: 0 },
     role: {
         type: String,
-        enum: [
-            "supervisor",
-            "labour",
-            "engineer",
-            "mason",
-            "electrican",
-            "plumber",
-        ],
         required: true,
     },
     acess:{type:[Boolean],default:[false,false,false]},
