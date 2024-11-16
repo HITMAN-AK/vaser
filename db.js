@@ -1,4 +1,5 @@
 const { Types, model, Schema } = require("mongoose");
+
 const attLog = model('attLog',new Schema({
     id: { type: Types.ObjectId, ref: "emplyee", required: true },
     status: Boolean,
@@ -6,6 +7,7 @@ const attLog = model('attLog',new Schema({
     absent: [],
     log: [],
 }));
+
 const stock = model('stock',new Schema({
     name: { type: String, required: true },
     quant: { type: Number, required: true },
@@ -28,6 +30,7 @@ const admin = model('admin',new Schema({
     emplyee: { type:[Types.ObjectId],ref:'emplyee'},
     site: { type:[Types.ObjectId],ref:'site'},
 }));
+
 const emplyee = model('emplyee' ,new Schema({
     name: {
         type: String,

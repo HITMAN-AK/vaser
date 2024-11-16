@@ -9,8 +9,8 @@ exp.post('/cre',async (rq,rs)=>{ // create account
         rs.end(null)
     }
 })
-exp.get('uck',async (rq,rs)=>{ // root page session chk
-    let st = (await admin.findById(rq.headers.auth)).site || (await emplyee.findById(rq.headers.auth)).site;
+exp.get('/uck',async (rq,rs)=>{ // root page session chk
+    let st = await admin.findById(rq.headers.auth)|| await emplyee.findById(rq.headers.auth);
     rs.json(st);
 })
 exp.get('/ava',async (rq,rs)=>{ // username chk not implemented
