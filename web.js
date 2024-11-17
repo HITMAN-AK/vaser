@@ -28,15 +28,23 @@ exp.get('/proj',async (rq,rs)=>{ // site list
 })
 exp.get('/emp',async (rq,rs)=>{ // emplyee list 
     let emp = (await admin.findById(rq.headers.auth)).emplyee || [...(await emplyee.findById(rq.headers.auth)).site.map(async v=>(site.findById(v)).emplyee)];
-    emp.map( async v =>await emplyee.findById(v))
+    emp = emp.map( async v =>await emplyee.findById(v))
+    console.log(emp)
     rs.json(emp);
 })
 exp.post('/emp',async (rq,rs)=>{ // emplyee post
+    console.log('post/emp',rq.headers.auth)
     const emp = await emplyee.findById(rq.headers.auth)
-    const id = (await(await emplyee.create(rq.body)).save())._id
-    admin.updateOne({_id:rq.headers.aurh},{'$push':{'emplyee': id} })
+    const id = (await(await emplyee.create({...rq.body,admin:emp?.admin ?? rq.headers.auth })).save())._id
+    console.log(id)
+    admin.updateOne({_id:emp?.admin ?? rq.headers.aurh},{'$push':{'emplyee': id} })
     emp && emplyee.updateOne({_id:rq.headers.aurh},{'$push':{'emplyee': id} })
-    rs.end('')
+    rs.end('👍')
+})
+exp.put('/emp',async (rq,rs)=>{ // emp update
+    await emplyee.updateOne({_id:rq.headers.edit},rq.body)
+    const data = await emplyee.findById(rq.headers.edit)
+    rs.json(data)
 })
 exp.get('/stoc',async (rq,rs)=>{ // stock list
     let stk = (await admin.findById(rq.headers.auth)).site || (await emplyee.findById(rq.headers.aurh)).site;

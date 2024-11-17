@@ -29,6 +29,9 @@ const admin = model('admin',new Schema({
     noPac: { type: Number, enum: [0, 1, 2], default: 0 },
     emplyee: { type:[Types.ObjectId],ref:'emplyee'},
     site: { type:[Types.ObjectId],ref:'site'},
+        accessPrevAttendance: Boolean,
+        accessAddEmployee: Boolean,
+        accessEditSalary: Boolean,
 }));
 
 const emplyee = model('emplyee' ,new Schema({
@@ -39,22 +42,21 @@ const emplyee = model('emplyee' ,new Schema({
     uname: { type: String, required: true, unique: true },
     pass: { type: String, required: true },
     noPac: { type: Number, enum: [0, 1, 2], default: 0 },
-    role: {
+    designation: {
         type: String,
         required: true,
     },
-    acess:{type:[Boolean],default:[false,false,false]},
-    salaryshift: {
+    salaryPerShift: {
         type: Number,
         required: true,
     },
-    salary:Number,
+    totalSalary:Number,
     dateOfJoining: {
         type: Date,
         required: true,
         default: Date.now,
     },
-    email: {
+    phoneNumber: {
         type: String,
         unique: true,
     },
@@ -62,7 +64,11 @@ const emplyee = model('emplyee' ,new Schema({
         type: [Types.ObjectId],
         ref: "site",
     },
-    admin:{type:Types.ObjectId,required:true}
+    admin:{type:Types.ObjectId,required:true},
+        accessPrevAttendance: Boolean,
+        accessAddEmployee: Boolean,
+        accessEditSalary: Boolean,
+
 }));
 module.exports = {admin,emplyee,site,stock,attLog}
 
