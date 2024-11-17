@@ -3,7 +3,7 @@ const {admin, emplyee , stock, site, attLog } = require('./db')
 exp.post('/cre',async (rq,rs)=>{ // create account 
     try{
     const us = await admin.create(rq.body);
-      const su = us.save();
+      const su = await us.save();
         rs.json(su)
     }catch {
         rs.end(null)
@@ -35,10 +35,11 @@ exp.get('/emp',async (rq,rs)=>{ // emplyee list
 exp.post('/emp',async (rq,rs)=>{ // emplyee post
     console.log('post/emp',rq.headers.auth)
     const emp = await emplyee.findById(rq.headers.auth)
-    const id = (await(await emplyee.create({...rq.body,admin:emp?.admin ?? rq.headers.auth })).save())._id
-    console.log(id)
-    admin.updateOne({_id:emp?.admin ?? rq.headers.aurh},{'$push':{'emplyee': id} })
-    emp && emplyee.updateOne({_id:rq.headers.aurh},{'$push':{'emplyee': id} })
+    let id = await emplyee.create({...rq.body,admin:emp?.admin ?? rq.headers.auth })
+    id = await id.save()
+    console.log(emp)
+    admin.updateOne({_id:emp?.admin ?? rq.headers.aurh},{$push:{emplyee: id._id} })
+    emp && emplyee.updateOne({_id:rq.headers.aurh},{$push:{emplyee: id._id} })
     rs.end('👍')
 })
 exp.put('/emp',async (rq,rs)=>{ // emp update
