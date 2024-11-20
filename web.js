@@ -12,7 +12,7 @@ exp.post("/cre", async (rq, rs) => {
 });
 exp.get("/sup",async(rq,rs)=>{
     let sup = (await admin.findById(rq.headers.auth)).emplyee;
-    sup = await emplyee.find({_id:{$in:sup},designation:"Supervisor"});
+    sup = sup ? await emplyee.find({_id:{$in:sup},designation:"Supervisor"}):[];
     rs.json(sup);
     // sup=Promise.all(sup.map(async v=>await emplyee.findOne({_id:v,designation:"Supervisor"})))
 })
@@ -64,6 +64,14 @@ exp.get("/emp", async (rq, rs) => {
     emp = await Promise.all(emp.map(async (v) => await emplyee.findById(v)));
     rs.json(emp);
 });
+exp.get('/projs',async (rq,rs)=>{
+    const emp = rq.headers.auth ? await site.find({_id:{$in:rq.headers.auth}}):[];
+    rs.json(emp);
+})
+exp.get('/emps',async (rq,rs)=>{
+    const emp = rq.headers.auth? await  emplyee.find({_id:{$in:rq.headers.auth}}):[];
+    rs.json(emp);
+})
 exp.post("/emp", async (rq, rs) => {
     // emplyee post
     const emp = await emplyee.findById(rq.headers.auth);

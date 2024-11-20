@@ -77,7 +77,7 @@ const emplyee = model(
     },
     site: {
       type: [Types.ObjectId],
-    },
+    }, emplyee: { type: [String] },
     admin: { type: Types.ObjectId, required: true },
     accessPrevAttendance: Boolean,
     accessAddEmployee: Boolean,
