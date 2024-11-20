@@ -16,18 +16,18 @@ exp.get("/sup",async(rq,rs)=>{
     rs.json(sup);
     // sup=Promise.all(sup.map(async v=>await emplyee.findOne({_id:v,designation:"Supervisor"})))
 })
-exp.get("/uck", async (rq, rs) => {
-    // root page session chk
-    let st =
-        (await admin.findById(rq.headers.auth)) ||
-            (await emplyee.findById(rq.headers.auth));
-    rs.json(st);
-});
 exp.get("/ava", async (rq, rs) => {
     // username chk not implemented
+    const st =
+        (await admin.findById(rq.headers.auth)) ||
+            (await emplyee.findById(rq.headers.auth));
+    st ? rs.status(400).end('👎'): rs.end("👍");
+});
+exp.get("/uck", async (rq, rs) => {
+    // root page session chk
     const usr =
-        (await admin.findOne({ uname: rq.headers.una })) ||
-            (await emplyee.findOne({ uname: rq.headers.una }));
+        (await admin.findOne({ uname: rq.headers.auth })) ||
+            (await emplyee.findOne({ uname: rq.headers.auth }));
     rs.json(usr);
 });
 exp.get("/log", async (rq, rs) => {
@@ -48,13 +48,12 @@ exp.get("/proj", async (rq, rs) => {
 exp.post("/proj",async (rq,rs)=>{
     let ste = await site.create(rq.body);
     ste = await ste.save();
-    // Supervisor not set 
-    emplyee.updateOne({_id:ste.selectedSupervisor},{$push:{site:ste.id}})
-    admin.updateOne({_id:rq.headers.auth},{$push:{site:ste.id}})
+    await emplyee.updateOne({_id:ste.projectSupervisor.value},{$push:{site:ste._id ?? ste.id}})
+    await admin.updateOne({_id:rq.headers.auth},{$push:{site:ste._id ?? ste.id}})
     rs.end("👍")
 })
 exp.put("/proj",async (rq,rs)=>{
-    site.updateOne({_id:rq.headers.edit},rq.body);
+    await site.updateOne({_id:rq.headers.edit},{...rq.body});
     const ste = await site.findById(rq.headers.edit); 
     rs.json(ste);
 })
@@ -63,20 +62,16 @@ exp.get("/emp", async (rq, rs) => {
     let emp = (await admin.findById(rq.headers.auth)).emplyee || [
         ...await Promise.all((await emplyee.findById(rq.headers.auth)).site.map(async (v) => site.findById(v).emplyee)),];
     emp = await Promise.all(emp.map(async (v) => await emplyee.findById(v)));
-    console.log(emp);
     rs.json(emp);
 });
 exp.post("/emp", async (rq, rs) => {
     // emplyee post
-    console.log("post/emp", rq.headers.auth);
     const emp = await emplyee.findById(rq.headers.auth);
     let id = await emplyee.create({
         ...rq.body,
         admin: emp?.admin ?? rq.headers.auth,
     });
     id = await id.save();
-    console.log("asd");
-    console.log(emp?.admin ?? rq.headers.auth);
     await admin.updateOne(
         { _id: emp?.admin ?? rq.headers.auth },
         { $push: { emplyee: id.id } }

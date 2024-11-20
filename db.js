@@ -26,6 +26,7 @@ const site = model(
     name: { type: String, required: true },
     owner: { type: String, required: true },
     location: { type: String, required: true },
+        projectSupervisor:Object,
     emplyee: { type: [Types.ObjectId] },
     stock: { type: [Types.ObjectId] },
     status: { type: Boolean, default: true },
