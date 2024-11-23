@@ -16,19 +16,19 @@ exp.get("/sup",async(rq,rs)=>{
     rs.json(sup);
     // sup=Promise.all(sup.map(async v=>await emplyee.findOne({_id:v,designation:"Supervisor"})))
 })
-exp.get("/ava", async (rq, rs) => {
-    // username chk not implemented
+exp.get("/uck", async (rq, rs) => {
+    // root page session chk
     const st =
         (await admin.findById(rq.headers.auth)) ||
             (await emplyee.findById(rq.headers.auth));
-    st ? rs.status(400).end('👎'): rs.end("👍");
+    rs.json(st);
 });
-exp.get("/uck", async (rq, rs) => {
-    // root page session chk
+exp.get("/ava", async (rq, rs) => {
+    // username chk not implemented
     const usr =
         (await admin.findOne({ uname: rq.headers.auth })) ||
             (await emplyee.findOne({ uname: rq.headers.auth }));
-    rs.json(usr);
+    usr ? rs.status(400).end('👎'): rs.end("👍");
 });
 exp.get("/log", async (rq, rs) => {
     // login
@@ -65,11 +65,13 @@ exp.get("/emp", async (rq, rs) => {
     rs.json(emp);
 });
 exp.get('/projs',async (rq,rs)=>{
-    const emp = rq.headers.auth ? await site.find({_id:{$in:rq.headers.auth}}):[];
+    const ck = rq.headers.auth?.split(','); 
+    const emp = rq.headers.auth ? await site.find({_id:{$in:ck}}):[];
     rs.json(emp);
 })
 exp.get('/emps',async (rq,rs)=>{
-    const emp = rq.headers.auth? await  emplyee.find({_id:{$in:rq.headers.auth}}):[];
+    const ck = rq.headers.auth?.split(','); 
+    const emp = rq.headers.auth? await  emplyee.find({_id:{$in:ck}}):[];
     rs.json(emp);
 })
 exp.post("/emp", async (rq, rs) => {
