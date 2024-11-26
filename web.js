@@ -100,7 +100,6 @@ exp.get("/stoc", async (rq, rs) => {
             const stock =  await v.stock.map(async v=>await stock.findById(v))
             return {name:v.name,stock};
         }));
-    console.log(stk)
     rs.json(stk);
 });
 exp.get('/projs',async (rq,rs)=>{
