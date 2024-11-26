@@ -64,16 +64,6 @@ exp.get("/emp", async (rq, rs) => {
     emp = await Promise.all(emp.map(async (v) => await emplyee.findById(v)));
     rs.json(emp);
 });
-exp.get('/projs',async (rq,rs)=>{
-    const ck = rq.headers.auth?.split(','); 
-    const emp = rq.headers.auth ? await site.find({_id:{$in:ck}}):[];
-    rs.json(emp);
-})
-exp.get('/emps',async (rq,rs)=>{
-    const ck = rq.headers.auth?.split(','); 
-    const emp = rq.headers.auth? await  emplyee.find({_id:{$in:ck}}):[];
-    rs.json(emp);
-})
 exp.post("/emp", async (rq, rs) => {
     // emplyee post
     const emp = await emplyee.findById(rq.headers.auth);
@@ -107,8 +97,25 @@ exp.get("/stoc", async (rq, rs) => {
     stk = await Promise.all(stk.map(async (item) => await site.findById(item)))
     stk = await Promise.all(
         stk.map(async (v) => {
-            return await v.stock.map(async (v) => {return {site:v.name, ...await stock.findById(v)}});
+            const stock =  await v.stock.map(async v=>await stock.findById(v))
+            return {name:v.name,stock};
         }));
+    console.log(stk)
     rs.json(stk);
 });
+exp.get('/projs',async (rq,rs)=>{
+    const ck = rq.headers.auth?.split(','); 
+    const emp = rq.headers.auth ? await site.find({_id:{$in:ck}}):[];
+    rs.json(emp);
+})
+exp.get('/emps',async (rq,rs)=>{
+    const ck = rq.headers.auth?.split(','); 
+    const emp = rq.headers.auth? await  emplyee.find({_id:{$in:ck}}):[];
+    rs.json(emp);
+})
+exp.get('/stocs',async (rq,rs)=>{
+    const ck = rq.headers.auth?.split(','); 
+    const emp = rq.headers.auth ? await stock.find({_id:{$in:ck}}):[];
+    rs.json(emp);
+})
 module.exports = exp;
