@@ -1,5 +1,12 @@
 const exp = require("express").Router();
+const cron = require("node-cron")
 const { admin, emplyee, stock, site, attLog} = require("./db");
+cron.schedule('0 0 * * *',async ()=>{
+    try{
+    await emplyee.updateMany({},{totalpay: 0, isPresent: false })
+    }catch {
+    }
+})
 exp.get("/siem", async (req, res) => {
   const sd = await site.findById(req.headers.siteid);
   res.json(sd)
@@ -24,6 +31,11 @@ exp.get("/sup", async (rq, rs) => {
 });
 exp.get("/uck", async (rq, rs) => {
   // root page session chk
+// await admin.deleteMany({}).then(console.log)
+// await emplyee.deleteMany({}).then(console.log)
+// await site.deleteMany({}).then(console.log)
+// await stock.deleteMany({}).then(console.log)
+// await attLog.deleteMany({}).then(console.log)
   const st =
     (await admin.findById(rq.headers.auth)) ||
     (await emplyee.findById(rq.headers.auth));
@@ -46,7 +58,7 @@ exp.get("/log", async (rq, rs) => {
 exp.get("/proj", async (rq, rs) => {
   // site list
   let st =
-    (await admin.findById(rq.headers.auth)).site ||
+    (await admin.findById(rq.headers.auth))?.site ||
     (await emplyee.findById(rq.headers.auth)).site;
   st = await Promise.all(st.map(async (v) => await site.findById(v)));
   rs.json(st);
@@ -62,13 +74,20 @@ exp.post("/proj", async (rq, rs) => {
     { _id: rq.headers.auth },
     { $push: { site: ste._id ?? ste.id } }
   );
-  rs.end("👍");
+  rs.json(ste);
 });
 exp.put("/proj", async (rq, rs) => {
   await site.updateOne({ _id: rq.headers.edit }, { ...rq.body });
   const ste = await site.findById(rq.headers.edit);
   rs.json(ste);
 });
+exp.delete('/proj',async (rq,rs)=>{
+    await site.deleteOne({_id:rq.headers.edit})
+    const emp = await emplyee.findOneAndUpdate({_id:rq.headers.auth},{$pull:{site:rq.headers.edit}})
+    await admin.updateOne({_id:emp?.admin || rq.headers.auth},{$pull :{site:rq.headers.edit}})
+    rs.end("👍")
+})
+
 exp.get("/emp", async (rq, rs) => {
   // emplyee list
   let emp = (await admin.findById(rq.headers.auth)).emplyee || [
@@ -110,16 +129,26 @@ exp.get("/stoc", async (rq, rs) => {
   // stock list
   let stk =
     (await admin.findById(rq.headers.auth)).site ||
-    (await emplyee.findById(rq.headers.aurh)).site;
+    (await emplyee.findById(rq.headers.auth)).site;
   stk = await Promise.all(stk.map(async (item) => await site.findById(item)));
   stk = await Promise.all(
     stk.map(async (v) => {
-      const stock = await v.stock.map(async (v) => await stock.findById(v));
-      return { name: v.name, stock };
+      const stok = await v.stock.map(async (v) => await stock.findById(v));
+      return { name: v.name, stock:stok };
     })
   );
   rs.json(stk);
 });
+exp.post('/stoc',async (rq,rs)=>{
+    let sto = await stock.create(rq.body)
+    sto = await sto.save()
+    sto = await site.findOneAndUpdate({_id:rq.headers.edit},{$push:{stock:sto._id ?? sto.id}})
+    rs.json(sto.stock)
+})
+exp.put('/stoc',async (rq,rs)=>{
+    sto = await stock.findOneAndUpdate({_id:rq.headers.edit},{...rq.body})
+    rs.json(sto.stock)
+})
 exp.get("/projs", async (rq, rs) => {
   const ck = rq.headers.auth?.split(",");
   const emp = rq.headers.auth ? await site.find({ _id: { $in: ck } }) : [];
