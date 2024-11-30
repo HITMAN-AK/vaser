@@ -1,13 +1,13 @@
 const exp = require("express").Router();
 const cron = require("node-cron")
-const { admin, emplyee, stock, site, attLog} = require("./db");
+const { admin, emplyee, stock, site, attLog, log} = require("./db");
 cron.schedule('0 0 * * *',async ()=>{
     try{
-        await emplyee.updateMany({totalpay:{ $gt : 0}},[{
+        await emplyee.updateMany({totalpay:{ $gt : 0}},{
             $set :{ totalSalary : {
                 $add : ['$totalSalary','$totalpay']
             }}
-        }]);
+        });
         await emplyee.updateMany({},{totalpay: 0, isPresent: false })
     }catch {
     }
@@ -79,17 +79,26 @@ exp.post("/proj", async (rq, rs) => {
         { _id: rq.headers.auth },
         { $push: { site: ste._id ?? ste.id } }
     );
+    let l = await log.create({work:`project added Supervisor is ${ste.projectSupervisor.lable}`,by:rq.headers.auth,})
+    l = await l.save();
+    await admin.updateOne({_id:rq.headers.auth},{$push:{log:l._id || l.id}})
     rs.json(ste);
 });
 exp.put("/proj", async (rq, rs) => {
     await site.updateOne({ _id: rq.headers.edit }, { ...rq.body });
     const ste = await site.findById(rq.headers.edit);
+    let l = await log.create({work:`stock edited name `,by:rq.headers.auth,})
+    l = await l.save();
+    await admin.updateOne({_id:rq.headers.admin},{$push:{log:l._id || l.id}})
     rs.json(ste);
 });
 exp.delete('/proj',async (rq,rs)=>{
     await site.deleteOne({_id:rq.headers.edit})
     const emp = await emplyee.findOneAndUpdate({_id:rq.headers.auth},{$pull:{site:rq.headers.edit}})
     await admin.updateOne({_id:emp?.admin || rq.headers.auth},{$pull :{site:rq.headers.edit}})
+    let l = await log.create({work:`stock edited name `,by:rq.headers.auth,})
+    l = await l.save();
+    await admin.updateOne({_id:rq.headers.admin},{$push:{log:l._id || l.id}})
     rs.end("👍")
 })
 
@@ -122,12 +131,18 @@ exp.post("/emp", async (rq, rs) => {
             { _id: rq.headers.auth },
             { $push: { emplyee: id.id } }
         ));
+    let l = await log.create({work:`employee ${id.name} added username : ${id.uname}`,by:rq.headers.auth,})
+    l = await l.save();
+    await admin.updateOne({_id:rq.headers.admin},{$push:{log:l._id || l.id}})
     rs.end("👍");
 });
 exp.put("/emp", async (rq, rs) => {
     // emp update
     await emplyee.updateOne({ _id: rq.headers.edit }, rq.body);
     const data = await emplyee.findById(rq.headers.edit);
+    let l = await log.create({work:`stock edited name `,by:rq.headers.auth,})
+    l = await l.save();
+    await admin.updateOne({_id:rq.headers.admin},{$push:{log:l._id || l.id}})
     rs.json(data);
 });
 exp.get("/stoc", async (rq, rs) => {
@@ -148,11 +163,17 @@ exp.post('/stoc',async (rq,rs)=>{
     let sto = await stock.create(rq.body)
     sto = await sto.save()
     sto = await site.findOneAndUpdate({_id:rq.headers.edit},{$push:{stock:sto._id ?? sto.id}})
+    let l = await log.create({work:`stock edited name `,by:rq.headers.auth,})
+    l = await l.save();
+    await admin.updateOne({_id:rq.headers.admin},{$push:{log:l._id || l.id}})
     rs.json(sto.stock)
 })
 exp.put('/stoc',async (rq,rs)=>{
     sto = await stock.findOneAndUpdate({_id:rq.headers.edit},{...rq.body})
-    rs.json(sto?.stock)
+    let l = await log.create({work:`stock edited name `,by:rq.headers.auth,})
+    l = await l.save();
+    await admin.updateOne({_id:rq.headers.admin},{$push:{log:l._id || l.id}})
+    rs.json(sto)
 })
 exp.get("/projs", async (rq, rs) => {
     const ck = rq.headers.auth?.split(",");

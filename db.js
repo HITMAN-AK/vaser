@@ -45,6 +45,7 @@ const admin = model(
         accessPrevAttendance: Boolean,
         accessAddEmployee: Boolean,
         accessEditSalary: Boolean,
+        log:[Types.ObjectId]
     })
 );
 
@@ -87,4 +88,15 @@ const emplyee = model(
         accessEditSalary: Boolean,
     })
 );
-module.exports = { admin, emplyee, site, stock, attLog };
+const log = model("log",new Schema({
+    work:{type:String,require:true},
+    by:{type:Types.ObjectId,require:true},
+    at:{require:true,default:Date.now,type:Date}
+}))
+// const msg = model("req",new Schema({
+//      for : {type:String, enum:['mat','att','sal'],required:true},
+//      work:Object,
+//      approve : {type:Boolean,default:null},
+//      who:{type:Types.ObjectId,required:true},
+// }) )
+module.exports = { admin, emplyee, site, stock, attLog, log };
