@@ -1,6 +1,6 @@
 const exp = require("express").Router();
 const cron = require("node-cron")
-const { admin, emplyee, stock, site, attLog, log} = require("./db");
+const { admin, emplyee, stock, site, attLog, log, msg} = require("./db");
 cron.schedule('0 0 * * *',async ()=>{
     try{
         await emplyee.updateMany({totalpay:{ $gt : 0}},{
@@ -147,26 +147,43 @@ exp.put("/emp", async (rq, rs) => {
 });
 exp.get("/stoc", async (rq, rs) => {
     // stock list
-    let stk =
-        (await admin.findById(rq.headers.auth)).site ||
-            (await emplyee.findById(rq.headers.auth)).site;
-    stk = await Promise.all(stk.map(async (item) => await site.findById(item)));
-    stk = await Promise.all(
-        stk.map(async (v) => {
-            const stok = await v.stock.map(async (v) => await stock.findById(v));
-            return { name: v.name, stock:stok };
-        })
-    );
+    let stk = (await admin.findById(rq.headers.auth)).stock 
+    stk = await Promise.all(stk.map(async (item) => await stock.findById(item)));
     rs.json(stk);
 });
 exp.post('/stoc',async (rq,rs)=>{
+    console.log(rq.headers,rq.body)
     let sto = await stock.create(rq.body)
     sto = await sto.save()
-    sto = await site.findOneAndUpdate({_id:rq.headers.edit},{$push:{stock:sto._id ?? sto.id}})
+    await admin.updateOne({_id:rq.headers.admin},{$push:{stock:sto._id ?? sto.id}})
     let l = await log.create({work:`stock edited name `,by:rq.headers.auth,})
     l = await l.save();
     await admin.updateOne({_id:rq.headers.admin},{$push:{log:l._id || l.id}})
-    rs.json(sto.stock)
+    rs.json("^")
+})
+exp.put('/stoc/site/up',async (rq,rs)=>{
+const updateObject = { 
+            $inc: { quant: -rq.body.quant }, 
+            $set: { [`drop.${rq.body.site}`]: rq.body.quant }
+        }
+    await stock.updateOne({_id:rq.body.stock},updateObject)
+    let l = await log.create({work:`update site stock`,by:'admin',})
+    l = await l.save();
+    await admin.updateOne({_id:rq.headers.admin},{$push:{log:l._id || l.id}})
+    rs.end("^")
+})
+exp.put('/stoc/site',async (rq,rs)=>{
+    await site.updateOne({_id:rs.body.site},{$push:{stock:rq.body.stock}})
+    const updateObject = { 
+            $inc: { quant: -rq.body.quant }, 
+            $set: { [`drop.${rq.body.id}`]: rq.body.quant }
+        }
+
+    await stock.updateOne( { _id: rq.body.stock},updateObject)
+    let l = await log.create({work:`Request accepected`,by:'admin',})
+    l = await l.save();
+    await admin.updateOne({_id:rq.headers.admin},{$push:{log:l._id || l.id}})
+    rs.end("^")
 })
 exp.put('/stoc',async (rq,rs)=>{
     sto = await stock.findOneAndUpdate({_id:rq.headers.edit},{...rq.body})
@@ -178,6 +195,9 @@ exp.put('/stoc',async (rq,rs)=>{
 exp.get("/projs", async (rq, rs) => {
     const ck = rq.headers.auth?.split(",");
     const emp = rq.headers.auth ? await site.find({ _id: { $in: ck } }) : [];
+    emp.map((item) => {
+        return {...item,quant:item.drop[rq.headers.edit]}
+    })
     rs.json(emp);
 });
 exp.get("/emps", async (rq, rs) => {
@@ -190,4 +210,13 @@ exp.get("/stocs", async (rq, rs) => {
     const emp = rq.headers.auth ? await stock.find({ _id: { $in: ck } }) : [];
     rs.json(emp);
 });
+exp.post('/req/mat',async(rq,rs)=>{
+    const ms = {for:'mat',
+        who:rq.headers.auth,
+        work:rq.body
+    }
+    const id = await(await msg.create(ms)).save()
+    await admin.updateOne({_id:rq.headers.admin},{$push:{req:id._id ?? id.id}})
+    rs.end("^")
+})
 module.exports = exp;

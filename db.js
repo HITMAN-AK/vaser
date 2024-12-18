@@ -10,7 +10,6 @@ const attLog = model(
         log: [],
     })
 );
-
 const stock = model(
     "stock",
     new Schema({
@@ -18,6 +17,7 @@ const stock = model(
         inImg: { type: String,},
         quant: { type: Number, required: true },
         unit: { type: String, required: true },
+        drop:{type:Map,of:Number},
     })
 );
 
@@ -45,6 +45,8 @@ const admin = model(
         accessPrevAttendance: Boolean,
         accessAddEmployee: Boolean,
         accessEditSalary: Boolean,
+        stock:[Types.ObjectId],
+        req:[Types.ObjectId],
         log:[Types.ObjectId]
     })
 );
@@ -93,10 +95,10 @@ const log = model("log",new Schema({
     by:{type:Types.ObjectId,require:true},
     at:{require:true,default:Date.now,type:Date}
 }))
-// const msg = model("req",new Schema({
-//      for : {type:String, enum:['mat','att','sal'],required:true},
-//      work:Object,
-//      approve : {type:Boolean,default:null},
-//      who:{type:Types.ObjectId,required:true},
-// }) )
-module.exports = { admin, emplyee, site, stock, attLog, log };
+const msg = model("req",new Schema({
+     for : {type:String, enum:['mat','att','sal'],required:true},
+     work:Object,
+     approve : {type:Boolean,default:null},
+     who:{type:Types.ObjectId,required:true},
+}) )
+module.exports = { admin, emplyee, site, stock, attLog, log, msg };
