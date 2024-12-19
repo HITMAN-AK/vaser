@@ -152,7 +152,6 @@ exp.get("/stoc", async (rq, rs) => {
     rs.json(stk);
 });
 exp.post('/stoc',async (rq,rs)=>{
-    console.log(rq.headers,rq.body)
     let sto = await stock.create(rq.body)
     sto = await sto.save()
     await admin.updateOne({_id:rq.headers.admin},{$push:{stock:sto._id ?? sto.id}})
@@ -162,10 +161,10 @@ exp.post('/stoc',async (rq,rs)=>{
     rs.json("^")
 })
 exp.put('/stoc/site/up',async (rq,rs)=>{
-const updateObject = { 
-            $inc: { quant: -rq.body.quant }, 
-            $set: { [`drop.${rq.body.site}`]: rq.body.quant }
-        }
+    const updateObject = { 
+        $inc: { quant: -rq.body.quant }, 
+        $set: { [`drop.${rq.body.site}`]: Number(rq.body.quant) },
+    }
     await stock.updateOne({_id:rq.body.stock},updateObject)
     let l = await log.create({work:`update site stock`,by:'admin',})
     l = await l.save();
@@ -175,9 +174,10 @@ const updateObject = {
 exp.put('/stoc/site',async (rq,rs)=>{
     await site.updateOne({_id:rs.body.site},{$push:{stock:rq.body.stock}})
     const updateObject = { 
-            $inc: { quant: -rq.body.quant }, 
-            $set: { [`drop.${rq.body.id}`]: rq.body.quant }
-        }
+        $inc: { quant: -rq.body.quant }, 
+        $set: { [`drop.${rq.body.site}`]: Number(rq.body.quant) },
+        $set: { [`ship.${rq.body.site}`]: Number(rq.body.quant) },
+    }
 
     await stock.updateOne( { _id: rq.body.stock},updateObject)
     let l = await log.create({work:`Request accepected`,by:'admin',})
@@ -210,13 +210,27 @@ exp.get("/stocs", async (rq, rs) => {
     const emp = rq.headers.auth ? await stock.find({ _id: { $in: ck } }) : [];
     rs.json(emp);
 });
+exp.get('/req',async (rq,rs)=>{
+    const ck = rq.headers.auth?.split(",");
+    const mat = rq.headers.auth ? await msg.find({ _id: { $in: ck } }) : [];
+    console.log(ck,mat)
+    rs.json(mat);
+
+})
 exp.post('/req/mat',async(rq,rs)=>{
-    const ms = {for:'mat',
+    const updateObject = { 
+        $set: { [`ship.${rq.body.site}`]: Number(rq.body.quant) }
+    }
+    await stock.updateOne({_id:rq.body.stock},updateObject)
+    const id = await(await msg.create({for:'mat',
         who:rq.headers.auth,
         work:rq.body
-    }
-    const id = await(await msg.create(ms)).save()
+    })).save()
+    await site.updateOne({_id:rq.body.site},{$push:{req:rq.body.stock}})
     await admin.updateOne({_id:rq.headers.admin},{$push:{req:id._id ?? id.id}})
+    let l = await log.create({work:`stock edited name `,by:rq.headers.auth,})
+    l = await l.save();
+    await admin.updateOne({_id:rq.headers.admin},{$push:{log:l._id || l.id}})
     rs.end("^")
 })
 module.exports = exp;

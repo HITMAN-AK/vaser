@@ -17,7 +17,9 @@ const stock = model(
         inImg: { type: String,},
         quant: { type: Number, required: true },
         unit: { type: String, required: true },
-        drop:{type:Map,of:Number},
+        drop:{type:Map,of:Number,default:null},
+        ship:{type:Map,of:Number,default:null},
+
     })
 );
 
@@ -30,6 +32,7 @@ const site = model(
         projectSupervisor:Object,
         emplyee: { type: [Types.ObjectId] },
         stock: { type: [Types.ObjectId] },
+        req: { type: [Types.ObjectId] },
         status: { type: Boolean, default: true },
     })
 );
