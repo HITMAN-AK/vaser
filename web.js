@@ -211,9 +211,8 @@ exp.get("/stocs", async (rq, rs) => {
     rs.json(emp);
 });
 exp.get('/req',async (rq,rs)=>{
-    const ck = rq.headers.auth?.split(",");
-    const mat = rq.headers.auth ? await msg.find({ _id: { $in: ck } }) : [];
-    console.log(ck,mat)
+    const usr = await admin.findById(rq.headers.admin)
+    const mat = await msg.find({ _id: { $in: usr.req } });
     rs.json(mat);
 
 })
