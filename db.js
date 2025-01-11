@@ -101,6 +101,7 @@ const log = model("log",new Schema({
 const msg = model("req",new Schema({
      for : {type:String, enum:['mat','att','sal'],required:true},
      work:Object,
+    show:Object,
      approve : {type:Boolean,default:null},
      who:{type:Types.ObjectId,required:true},
 }) )
