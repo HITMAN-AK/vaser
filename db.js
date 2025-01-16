@@ -72,7 +72,7 @@ const emplyee = model(
             type: Number,
             required: true,
         },
-        totalSalary: Number,
+        totalSalary:{type:Number,default:0},
         totalpay:{type:Number,default:0},
         isPresent:{type:Boolean,default:false},
         dateOfJoining: {

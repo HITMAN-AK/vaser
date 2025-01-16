@@ -3,13 +3,14 @@ const cron = require("node-cron")
 const { admin, emplyee, stock, site, attLog, log, msg} = require("./db");
 cron.schedule('0 0 * * *',async ()=>{
     try{
-        await emplyee.updateMany({totalpay:{ $gt : 0}},{
-            $set :{ totalSalary : {
-                $add : ['$totalSalary','$totalpay']
-            }}
-        });
+        await emplyee.updateMany({totalpay:{$gt:0}},
+            {$addFields:{
+            totalSalary:{$add:["$totalpay","$totalSalary"]}
+            }})
         await emplyee.updateMany({},{totalpay: 0, isPresent: false })
-    }catch {
+        console.log("0.0. * * *")
+    }catch (e) {
+        console.log("0.0. * * *",e)
     }
 })
 exp.get("/siem", async (req, res) => {
@@ -227,7 +228,6 @@ exp.post('/req/mat',async(rq,rs)=>{
     const emp = await emplyee.findById(rq.headers.auth) || {name:"admin"}
     const ste = await site.findById(rq.body.site)
     const stok = await stock.findById(rq.body.stock)
-    console.log(rq.body)
     await stock.updateOne({_id:rq.body.stock},updateObject)
     const id = await(await msg.create({for:'mat',
         who:rq.headers.auth,
