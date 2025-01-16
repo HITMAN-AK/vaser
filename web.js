@@ -163,7 +163,6 @@ exp.post('/stoc',async (rq,rs)=>{
 })
 exp.put('/stoc/site/up',async (rq,rs)=>{
     const updateObject = { 
-        $inc: { quant: -rq.body.quant }, 
         $set: { [`drop.${rq.body.site}`]: Number(rq.body.quant) },
     }
     await stock.updateOne({_id:rq.body.stock},updateObject)
