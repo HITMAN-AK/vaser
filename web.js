@@ -167,7 +167,7 @@ exp.put('/stoc/site/up',async (rq,rs)=>{
         $set: { [`drop.${rq.body.site}`]: Number(rq.body.quant) },
     }
     await stock.updateOne({_id:rq.body.stock},updateObject)
-    let l = await log.create({work:`update site stock`,by:'admin',})
+    let l = await log.create({work:`update site stock`,by:rq.headers.admin,})
     l = await l.save();
     await admin.updateOne({_id:rq.headers.admin},{$push:{log:l._id || l.id}})
     rs.end("^")
@@ -184,7 +184,7 @@ exp.put('/stoc/site',async (rq,rs)=>{
     await stock.updateOne( { _id: rq.body.stock},updateObject)
     await site.updateOne({_id:rq.body.site},{$pull:{req:rq.body.stock}})
     await admin.updateOne({_id:rq.headers.admin},{$pull:{req:rq.headers.req}})
-    let l = await log.create({work:`Request accepected`,by:'admin',})
+    let l = await log.create({work:`Request accepected`,by:rq.headers.admin,})
     l = await l.save();
     await admin.updateOne({_id:rq.headers.admin},{$push:{log:l._id || l.id}})
     rs.end("^")
